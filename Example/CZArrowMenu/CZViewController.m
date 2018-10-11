@@ -49,7 +49,7 @@
     item4.img = [UIImage imageNamed:@"front_btn_h3"];
     
     CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Horizontal Items:@[item0, item1, item2, item3, item4]];
-    [m showWithArrowTarget:sender pointingPosition:CZArrowMenuPointingPosition_Top];
+    [m showWithArrowTarget:sender pointingPosition:CZArrowMenuPointingPosition_Bottom];
 }
 
 @end
