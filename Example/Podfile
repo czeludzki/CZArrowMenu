@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'CZArrowMenu_Example' do
+  pod 'CZArrowMenu', :path => '../'
+
+  target 'CZArrowMenu_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
