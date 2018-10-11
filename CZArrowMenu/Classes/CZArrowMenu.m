@@ -194,6 +194,8 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
 #pragma mark - Helper
 - (void)showWithArrowTarget:(UIView *)arrowTarget pointingPosition:(CZArrowMenuPointingPosition)pointingPosition
 {
+    NSAssert(arrowTarget, @"arrowTarget 不能为空");
+    NSAssert(pointingPosition <= CZArrowMenuPointingPosition_Right, @"pointingPosition 设置错误");
     self.pointingPosition = pointingPosition;
     
     __block UIColor *t_color = self.backgroundColor;
