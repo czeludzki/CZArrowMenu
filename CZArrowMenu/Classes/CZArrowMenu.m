@@ -248,7 +248,7 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
         make.top.mas_equalTo(effectViewPosition.y);
     }];
 
-    self.effectView.layer.mask = self.maskLayer;
+    self.effectView.layer.mask = self.maskLayer; 
 }
 
 /**
