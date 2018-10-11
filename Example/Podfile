@@ -2,7 +2,7 @@ use_frameworks!
 
 target 'CZArrowMenu_Example' do
   pod 'CZArrowMenu', :path => '../'
-
+  pod 'Masonry'
   target 'CZArrowMenu_Tests' do
     inherit! :search_paths
 
