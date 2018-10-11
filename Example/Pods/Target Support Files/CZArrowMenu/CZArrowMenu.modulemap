@@ -1,0 +1,6 @@
+framework module CZArrowMenu {
+  umbrella header "CZArrowMenu-umbrella.h"
+
+  export *
+  module * { export * }
+}

@@ -1,0 +1,20 @@
+PODS:
+  - CZArrowMenu (0.1.0):
+    - Masonry
+  - Masonry (1.1.0)
+
+DEPENDENCIES:
+  - CZArrowMenu (from `../`)
+  - Masonry
+
+EXTERNAL SOURCES:
+  CZArrowMenu:
+    :path: ../
+
+SPEC CHECKSUMS:
+  CZArrowMenu: e22e05c0d02bc2c7dbbdb69a2b817e6ad38e0ebd
+  Masonry: 678fab65091a9290e40e2832a55e7ab731aad201
+
+PODFILE CHECKSUM: f180eeb291bdd18ccc4bf53ccaf5d69b46b3acbd
+
+COCOAPODS: 1.4.0.beta.1

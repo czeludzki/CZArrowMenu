@@ -11,15 +11,38 @@
 #import <Masonry/Masonry.h>
 
 #define k_appKeyWindow [UIApplication sharedApplication].keyWindow
+// 圆角度数
 #define k_cornerRadius 8.0
-
+// collectionview 高度
 #define k_collectionViewHeight 44.0
+// collectionviewCell 间距
 #define k_collectionViewMargin 8.0
-
+// 箭头高度
 #define k_arrowHeight 8
-
 // 等边三角形 高度(0.86625) : 边长(1)
 #define k_triangleRatio 0.86625
+
+
+/**
+ 用这个结构体来表示 计算好后的 self.effectView 位置
+ pointingPosition: 箭头的指向
+ offset: 偏移量 (top: 10, left:10)
+ center: 在autolayout中, 以center来设置 self.effectView 的 center
+ */
+typedef struct CZArrowCenterPosition {
+    CZArrowMenuPointingPosition pointingPosition;
+    UIEdgeInsets offset;
+    CGPoint center;
+} CZArrowCenterPosition;
+
+UIKIT_STATIC_INLINE struct CZArrowCenterPosition CZArrowCenterPositionMake(CZArrowMenuPointingPosition pointingPostion, CGFloat offset_top, CGFloat offset_left, CGFloat offset_bottom, CGFloat offset_right, CGFloat centerX, CGFloat centerY)
+{
+    struct CZArrowCenterPosition p;
+    p.pointingPosition = pointingPostion;
+    p.offset = UIEdgeInsetsMake(offset_top, offset_left, offset_bottom, offset_right);
+    p.center = CGPointMake(centerX, centerY);
+    return p;
+}
 
 @interface CZArrowMenu () <UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UITableViewDelegate, UITableViewDataSource>
 @property (nonatomic, assign) CZArrowMenuDirection direction;
@@ -29,8 +52,6 @@
 @property (nonatomic, strong) UIVisualEffectView *effectView;
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) UICollectionView *collectionView;
-
-
 /**
  为了实现小尖角效果, 为 self.effectView.layer 添加一个 maskLayer
  */
@@ -38,7 +59,8 @@
 /**
  在给 tableView 或 collectionView 设置 autoLayout 定位时, 需要根据 self.pointingPosition 给四周预留空间放置 箭头
  */
-@property (nonatomic, assign) UIEdgeInsets contentEdges;
+@property (readonly) UIEdgeInsets contentEdges;
+@property (nonatomic, weak) UIView *targetView;
 @end
 
 @implementation CZArrowMenu
@@ -57,11 +79,57 @@
         // 已知 等边三角形高度, 求等边三角形的边长
         CGFloat lengthOfSide = k_arrowHeight / k_triangleRatio;
         
-        UIBezierPath *b_path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, k_arrowHeight, contentSize.width, contentSize.height - k_arrowHeight) cornerRadius:k_cornerRadius];
+        CGFloat maskX = 0;
+        CGFloat maskY = 0;
+        CGFloat maskW = 0;
+        CGFloat maskH = 0;
+        
+        CGFloat move2PointX = 0;
+        CGFloat move2PointY = 0;
+        
+        CGFloat addLine2PointX_firstStep = 0;
+        CGFloat addLine2PointY_firstStep = 0;
+
+        CGFloat addLine2PointX_secondStep = 0;
+        CGFloat addLine2PointY_secondStep = 0;
+
+        if (self.pointingPosition == CZArrowMenuPointingPosition_Left) {
+            maskX = k_arrowHeight;
+//            move2PointX =
+        }
+        if (self.pointingPosition == CZArrowMenuPointingPosition_Right) {
+            maskX = -k_arrowHeight;
+//            move2PointX
+        }
+        if (self.pointingPosition == CZArrowMenuPointingPosition_Top) {
+            maskW = contentSize.width;
+            maskH = contentSize.height - k_arrowHeight;
+            
+            move2PointY = contentSize.height - k_arrowHeight;
+            
+            addLine2PointX_firstStep = (lengthOfSide / 2) + move2PointX;
+            addLine2PointY_firstStep = contentSize.height;
+            
+            addLine2PointX_secondStep = lengthOfSide + move2PointX;
+            addLine2PointY_secondStep = contentSize.height - k_arrowHeight;
+        }
+        if (self.pointingPosition == CZArrowMenuPointingPosition_Bottom) {
+            maskY = k_arrowHeight;
+            maskW = contentSize.width;
+            maskH = contentSize.height - k_arrowHeight;
+            
+            move2PointY = k_arrowHeight;
+            
+            addLine2PointX_firstStep = (lengthOfSide / 2) + move2PointX;
+            
+            addLine2PointX_secondStep = lengthOfSide + move2PointX;
+            addLine2PointY_secondStep = k_arrowHeight;
+        }
+        UIBezierPath *b_path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(maskX, maskY, maskW, maskH) cornerRadius:k_cornerRadius];
         // 利用 CAShapeLayer 画尖角
-        [b_path moveToPoint:CGPointMake(20, k_arrowHeight)];
-        [b_path addLineToPoint:CGPointMake((lengthOfSide / 2) + 20, 0)];
-        [b_path addLineToPoint:CGPointMake(lengthOfSide + 20, k_arrowHeight)];
+        [b_path moveToPoint:CGPointMake(move2PointX, move2PointY)];
+        [b_path addLineToPoint:CGPointMake(addLine2PointX_firstStep, addLine2PointY_firstStep)];
+        [b_path addLineToPoint:CGPointMake(addLine2PointX_secondStep, addLine2PointY_secondStep)];
         [b_path closePath];
         
         _maskLayer.path = b_path.CGPath;
@@ -82,21 +150,11 @@
 {
     if (!_tableView) {
         _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
-        _tableView.backgroundColor = [UIColor clearColor];
+        _tableView.backgroundColor = [UIColor redColor];
         _tableView.delegate = self;
         _tableView.dataSource = self;
     }
     return _tableView;
-}
-
-- (UIEdgeInsets)contentEdges
-{
-    NSValue *top = [NSValue valueWithUIEdgeInsets:UIEdgeInsetsMake(k_arrowHeight, 0, 0, 0)];
-    NSValue *left = [NSValue valueWithUIEdgeInsets:UIEdgeInsetsMake(0, k_arrowHeight, 0, 0)];
-    NSValue *bottom = [NSValue valueWithUIEdgeInsets:UIEdgeInsetsMake(0, 0, k_arrowHeight, 0)];
-    NSValue *right = [NSValue valueWithUIEdgeInsets:UIEdgeInsetsMake(0, 0, 0, k_arrowHeight)];
-    NSArray <NSValue *>*t_arr = @[top, left, bottom, right];
-    return t_arr[self.pointingPosition].UIEdgeInsetsValue;
 }
 
 static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCellID";
@@ -112,6 +170,16 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
         _collectionView.dataSource = self;
     }
     return _collectionView;
+}
+
+- (UIEdgeInsets)contentEdges
+{
+    NSValue *top = [NSValue valueWithUIEdgeInsets:UIEdgeInsetsMake(0, 0, k_arrowHeight, 0)];
+    NSValue *left = [NSValue valueWithUIEdgeInsets:UIEdgeInsetsMake(0, 0, 0, k_arrowHeight)];
+    NSValue *bottom = [NSValue valueWithUIEdgeInsets:UIEdgeInsetsMake(k_arrowHeight, 0, 0, 0)];
+    NSValue *right = [NSValue valueWithUIEdgeInsets:UIEdgeInsetsMake(0, k_arrowHeight, 0, 0)];
+    NSArray <NSValue *>*t_arr = @[top, left, bottom, right];
+    return t_arr[self.pointingPosition].UIEdgeInsetsValue;
 }
 
 #pragma mark - life cycle
@@ -197,6 +265,7 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
     NSAssert(arrowTarget, @"arrowTarget 不能为空");
     NSAssert(pointingPosition <= CZArrowMenuPointingPosition_Right, @"pointingPosition 设置错误");
     self.pointingPosition = pointingPosition;
+    self.targetView = arrowTarget;
     
     __block UIColor *t_color = self.backgroundColor;
     __weak __typeof (self) weakSelf = self;
@@ -209,7 +278,7 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
         make.edges.mas_equalTo(UIEdgeInsetsZero);
     }];
     
-    [self confirmContentRect:arrowTarget];
+    [self confirmContentRect];
     
     [UIView animateWithDuration:.3f animations:^{
         weakSelf.backgroundColor = t_color;
@@ -217,9 +286,9 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
 }
 
 /**
- 布置 effectView 的定位
+ 布置 effectView 的 position 以及 size
  */
-- (void)confirmContentRect:(UIView *)arrowTarget
+- (void)confirmContentRect
 {
     __weak __typeof (self) weakSelf = self;
     
@@ -230,8 +299,8 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
     
     // 先给 effectView 设置 rect, 以便计算 tableview 或 collectionView 的 contentsize, 以下mas_makeConstraints中设置的都是临时的值
     [self.effectView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(0);
-        make.top.mas_equalTo(0);
+        make.centerY.mas_equalTo(0);
+        make.centerX.mas_equalTo(0);
         make.width.mas_equalTo(44);
         make.height.mas_equalTo(k_collectionViewHeight + k_arrowHeight);
     }];
@@ -244,10 +313,10 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
         make.height.mas_equalTo(effectViewSize.height);
     }];
     
-    CGPoint effectViewPosition = [self effectViewPositionWithTarget:arrowTarget pointingPosition:self.pointingPosition effectViewSize:effectViewSize];
+    CZArrowCenterPosition effectViewPosition = [self effectViewPositionWithPointingPosition:self.pointingPosition effectViewSize:effectViewSize];
     [self.effectView mas_updateConstraints:^(MASConstraintMaker *make) {
-        make.left.mas_equalTo(effectViewPosition.x);
-        make.top.mas_equalTo(effectViewPosition.y);
+        make.centerX.mas_offset(effectViewPosition.center.x - effectViewPosition.offset.left - effectViewPosition.offset.right);
+        make.centerY.mas_offset(effectViewPosition.center.y - effectViewPosition.offset.top - effectViewPosition.offset.bottom);
     }];
 
     self.effectView.layer.mask = self.maskLayer; 
@@ -288,22 +357,33 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
  3. 无论怎么偏移, 距离屏幕边缘不能超出 self.edgeInsetsFromWindow
  4. 当因为 pointingPosition 设置不正确导致的无法通过 偏移处理来使 effectView 正确显示, 则不作处理
  */
-- (CGPoint)effectViewPositionWithTarget:(UIView *)target pointingPosition:(CZArrowMenuPointingPosition)pointingPosition effectViewSize:(CGSize)effectViewSize
+- (CZArrowCenterPosition)effectViewPositionWithPointingPosition:(CZArrowMenuPointingPosition)pointingPosition effectViewSize:(CGSize)effectViewSize
 {
-    CGPoint t_p = CGPointZero;
-    CGRect targetRectInWindow = [target convertRect:target.bounds toView:k_appKeyWindow];
+    CZArrowCenterPosition t_p;
+    CGRect targetRectInWindow = [self.targetView convertRect:self.targetView.bounds toView:k_appKeyWindow];
+    CGFloat centerX = CGRectGetMidX(targetRectInWindow) - k_appKeyWindow.bounds.size.width / 2;
+    CGFloat centerY = CGRectGetMidY(targetRectInWindow) - k_appKeyWindow.bounds.size.height / 2;
+    CGFloat top = 0;
+    CGFloat left = 0;
+    CGFloat bottom = 0;
+    CGFloat right = 0;
     if (pointingPosition == CZArrowMenuPointingPosition_Top) {
-        t_p = CGPointMake(CGRectGetMidX(targetRectInWindow), CGRectGetMinY(targetRectInWindow));
+        top = targetRectInWindow.size.height * .5f + effectViewSize.height * .5f;
     }
     if (pointingPosition == CZArrowMenuPointingPosition_Left) {
-        t_p = CGPointMake(CGRectGetMinX(targetRectInWindow), CGRectGetMidY(targetRectInWindow));
+        left = targetRectInWindow.size.width * .5f + effectViewSize.width * .5f;
     }
     if (pointingPosition == CZArrowMenuPointingPosition_Bottom) {
-        t_p = CGPointMake(CGRectGetMidX(targetRectInWindow), CGRectGetMaxY(targetRectInWindow));
+        bottom = targetRectInWindow.size.height * -.5f + effectViewSize.height * -.5f;
     }
     if (pointingPosition == CZArrowMenuPointingPosition_Right) {
-        t_p = CGPointMake(CGRectGetMaxX(targetRectInWindow), CGRectGetMidY(targetRectInWindow));
+        right = targetRectInWindow.size.width * -.5f + effectViewSize.width * -.5f;
     }
+    // 开启 while 循环以计算是否超出屏幕显示空间
+    while (<#condition#>) {
+        
+    }
+    t_p = CZArrowCenterPositionMake(pointingPosition, top, left, bottom, right, centerX, centerY);
     return t_p;
 }
 
