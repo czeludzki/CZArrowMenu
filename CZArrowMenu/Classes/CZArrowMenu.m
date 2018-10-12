@@ -44,6 +44,18 @@ UIKIT_STATIC_INLINE struct CZArrowCenterPosition CZArrowCenterPositionMake(CZArr
     return p;
 }
 
+/**
+ 在判断方法 -(BOOL)judgeEffectViewIsBeyondScreenWithEffectViewCenter:effectViewSize 中, 返回这一结构体以表示 effectView 是否超出了屏幕
+ 当设置适当的 offset 可使 effectView 不超出屏幕, 则 isBeyond 为 NO,
+ 当设置了适当的 offset, 还是无法使 effectView 不超出屏幕, 则 isBeyond 为 YES
+ */
+typedef struct CZArrowMenuBeyondScreenJudgeResult{
+    // 超出了屏幕
+    BOOL isBeyond;
+    // 设置偏移量可使 self.effectView 不超出屏幕
+    UIEdgeInsets offset;
+}CZArrowMenuBeyondScreenJudgeResult;
+
 @interface CZArrowMenu () <UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UITableViewDelegate, UITableViewDataSource>
 @property (nonatomic, assign) CZArrowMenuDirection direction;
 @property (nonatomic, assign) CZArrowMenuPointingPosition pointingPosition;
@@ -81,8 +93,8 @@ UIKIT_STATIC_INLINE struct CZArrowCenterPosition CZArrowCenterPositionMake(CZArr
         
         CGFloat maskX = 0;
         CGFloat maskY = 0;
-        CGFloat maskW = 0;
-        CGFloat maskH = 0;
+        CGFloat maskW = contentSize.width;
+        CGFloat maskH = contentSize.height;
         
         CGFloat move2PointX = 0;
         CGFloat move2PointY = 0;
@@ -127,10 +139,10 @@ UIKIT_STATIC_INLINE struct CZArrowCenterPosition CZArrowCenterPositionMake(CZArr
         }
         UIBezierPath *b_path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(maskX, maskY, maskW, maskH) cornerRadius:k_cornerRadius];
         // 利用 CAShapeLayer 画尖角
-        [b_path moveToPoint:CGPointMake(move2PointX, move2PointY)];
-        [b_path addLineToPoint:CGPointMake(addLine2PointX_firstStep, addLine2PointY_firstStep)];
-        [b_path addLineToPoint:CGPointMake(addLine2PointX_secondStep, addLine2PointY_secondStep)];
-        [b_path closePath];
+//        [b_path moveToPoint:CGPointMake(move2PointX, move2PointY)];
+//        [b_path addLineToPoint:CGPointMake(addLine2PointX_firstStep, addLine2PointY_firstStep)];
+//        [b_path addLineToPoint:CGPointMake(addLine2PointX_secondStep, addLine2PointY_secondStep)];
+//        [b_path closePath];
         
         _maskLayer.path = b_path.CGPath;
     }
@@ -285,6 +297,11 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
     }];
 }
 
+typedef struct EffectViewRectInfo{
+    CZArrowCenterPosition position;
+    CGSize size;
+} EffectViewRectInfo;
+
 /**
  布置 effectView 的 position 以及 size
  */
@@ -306,17 +323,16 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
     }];
     [self.effectView layoutIfNeeded];
     
-    // 获得 tableview 或 collectionView 的 contentsize
+    // 通过 tableview 或 collectionView 的 contentsize, 计算出 effectView 的宽高
     CGSize effectViewSize = [self effectViewSize];
-    [self.effectView mas_updateConstraints:^(MASConstraintMaker *make) {
-        make.width.mas_equalTo(effectViewSize.width);
-        make.height.mas_equalTo(effectViewSize.height);
-    }];
+    // 计算出 effectView 的定位
+    EffectViewRectInfo effectViewRectInfo = [self effectViewPositionWithEffectViewSize:effectViewSize];
     
-    CZArrowCenterPosition effectViewPosition = [self effectViewPositionWithPointingPosition:self.pointingPosition effectViewSize:effectViewSize];
     [self.effectView mas_updateConstraints:^(MASConstraintMaker *make) {
-        make.centerX.mas_offset(effectViewPosition.center.x - effectViewPosition.offset.left - effectViewPosition.offset.right);
-        make.centerY.mas_offset(effectViewPosition.center.y - effectViewPosition.offset.top - effectViewPosition.offset.bottom);
+        make.width.mas_equalTo(effectViewRectInfo.size.width);
+        make.height.mas_equalTo(effectViewRectInfo.size.height);
+        make.centerX.mas_offset(effectViewRectInfo.position.center.x - effectViewRectInfo.position.offset.left - effectViewRectInfo.position.offset.right);
+        make.centerY.mas_offset(effectViewRectInfo.position.center.y - effectViewRectInfo.position.offset.top - effectViewRectInfo.position.offset.bottom);
     }];
 
     self.effectView.layer.mask = self.maskLayer; 
@@ -357,9 +373,8 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
  3. 无论怎么偏移, 距离屏幕边缘不能超出 self.edgeInsetsFromWindow
  4. 当因为 pointingPosition 设置不正确导致的无法通过 偏移处理来使 effectView 正确显示, 则不作处理
  */
-- (CZArrowCenterPosition)effectViewPositionWithPointingPosition:(CZArrowMenuPointingPosition)pointingPosition effectViewSize:(CGSize)effectViewSize
+- (EffectViewRectInfo)effectViewPositionWithEffectViewSize:(CGSize)effectViewSize
 {
-    CZArrowCenterPosition t_p;
     CGRect targetRectInWindow = [self.targetView convertRect:self.targetView.bounds toView:k_appKeyWindow];
     CGFloat centerX = CGRectGetMidX(targetRectInWindow) - k_appKeyWindow.bounds.size.width / 2;
     CGFloat centerY = CGRectGetMidY(targetRectInWindow) - k_appKeyWindow.bounds.size.height / 2;
@@ -367,24 +382,101 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
     CGFloat left = 0;
     CGFloat bottom = 0;
     CGFloat right = 0;
-    if (pointingPosition == CZArrowMenuPointingPosition_Top) {
+    if (CZArrowMenuPointingPosition_Top == self.pointingPosition) {
         top = targetRectInWindow.size.height * .5f + effectViewSize.height * .5f;
     }
-    if (pointingPosition == CZArrowMenuPointingPosition_Left) {
+    if (CZArrowMenuPointingPosition_Left == self.pointingPosition) {
         left = targetRectInWindow.size.width * .5f + effectViewSize.width * .5f;
     }
-    if (pointingPosition == CZArrowMenuPointingPosition_Bottom) {
+    if (CZArrowMenuPointingPosition_Bottom == self.pointingPosition) {
         bottom = targetRectInWindow.size.height * -.5f + effectViewSize.height * -.5f;
     }
-    if (pointingPosition == CZArrowMenuPointingPosition_Right) {
+    if (CZArrowMenuPointingPosition_Right == self.pointingPosition) {
         right = targetRectInWindow.size.width * -.5f + effectViewSize.width * -.5f;
     }
-    // 开启 while 循环以计算是否超出屏幕显示空间
-    while (<#condition#>) {
-        
+    
+    // 判断是否超出屏幕显示, 并计算是否可修复, 返回修复的结果
+    CZArrowMenuBeyondScreenJudgeResult result = [self judgeEffectViewIsBeyondScreenWithTargetViewCenter:CGPointMake(CGRectGetMidX(targetRectInWindow), CGRectGetMidY(targetRectInWindow)) effectViewSize:effectViewSize targetViewRectInWindow:targetRectInWindow];
+    
+    CZArrowCenterPosition t_p = CZArrowCenterPositionMake(self.pointingPosition, top + result.offset.top, left + result.offset.left, bottom - result.offset.bottom, right - result.offset.right, centerX, centerY);
+    CGSize t_s = effectViewSize;
+    EffectViewRectInfo rectInfo = {t_p, t_s};
+    
+    return rectInfo;
+}
+
+
+// 需要偏移的方向
+typedef NS_ENUM(NSUInteger, OffsetDirection) {
+    OffsetDirection_top = 0,
+    OffsetDirection_left = 1,
+    OffsetDirection_bottom = 2,
+    OffsetDirection_right = 3,
+};
+
+- (CZArrowMenuBeyondScreenJudgeResult)judgeEffectViewIsBeyondScreenWithTargetViewCenter:(CGPoint)targetViewCenter effectViewSize:(CGSize)effectViewSize targetViewRectInWindow:(CGRect)targetRectInWindow
+{
+    // 先计算出 effectView 在 window 上的 Rect
+    CGPoint effectViewOrigin = CGPointZero;
+    if (CZArrowMenuPointingPosition_Top == self.pointingPosition) {
+        effectViewOrigin = CGPointMake(targetViewCenter.x - effectViewSize.width * .5f, targetViewCenter.y - (targetRectInWindow.size.height * .5f + effectViewSize.height * .5f));
     }
-    t_p = CZArrowCenterPositionMake(pointingPosition, top, left, bottom, right, centerX, centerY);
-    return t_p;
+    if (CZArrowMenuPointingPosition_Left == self.pointingPosition) {
+        effectViewOrigin = CGPointMake(targetViewCenter.x - (targetRectInWindow.size.width * .5f + effectViewSize.width * .5f), targetViewCenter.y - effectViewSize.height * .5f);
+    }
+    if (CZArrowMenuPointingPosition_Bottom == self.pointingPosition) {
+        effectViewOrigin = CGPointMake(targetViewCenter.x - effectViewSize.width * .5f, targetViewCenter.y + (targetRectInWindow.size.height * .5f + effectViewSize.height * .5f));
+    }
+    if (CZArrowMenuPointingPosition_Right == self.pointingPosition) {
+        effectViewOrigin = CGPointMake(targetViewCenter.x - (targetRectInWindow.size.width * .5f + effectViewSize.width * .5f), targetViewCenter.y - effectViewSize.height * .5f);
+    }
+
+    CGRect effectViewRect = {effectViewOrigin, effectViewSize};
+    CGRect edgeRect = CGRectMake(self.edgeInsetsFromWindow.left, self.edgeInsetsFromWindow.top, k_appKeyWindow.bounds.size.width - self.edgeInsetsFromWindow.left - self.edgeInsetsFromWindow.right, k_appKeyWindow.bounds.size.height - self.edgeInsetsFromWindow.top - self.edgeInsetsFromWindow.bottom);
+    
+    CGRect interRec = CGRectZero;
+    BOOL isBeyond = YES;
+    NSInteger timeout = k_appKeyWindow.frame.size.height * .5f;    // 最多尝试计算 屏幕高度 / 2 次
+    UIEdgeInsets autoLayoutOffset = UIEdgeInsetsZero;
+    // 获取偏移方向
+    OffsetDirection offsetDir = [self offsetDirectionWithCenter:targetViewCenter pointingPosition:self.pointingPosition];
+    while (isBeyond && timeout > 0) {
+        interRec = CGRectIntersection(effectViewRect, edgeRect);
+        // 当 pointingPosition 是指向 targetView 的 上 或 下 的时候, 仅通过 判断 effectView 的宽是否完全显示在屏幕上即可, 同理, 当 pointingPosition 是指向 targetView 的 左或右, 仅通过 判断 effectView 的高, 是否完全显示在屏幕上即可
+        // 务必向上取整
+        isBeyond = (CZArrowMenuPointingPosition_Top == self.pointingPosition || CZArrowMenuPointingPosition_Bottom == self.pointingPosition) ? ceil(effectViewSize.width) != ceil(interRec.size.width) : ceil(effectViewSize.height) != ceil(interRec.size.height);
+        timeout--;
+        if (!isBeyond) break;
+        // 根据不同的 箭头指向, 尝试移动 x,y 以使 effectView 完整地显示在屏幕里
+        // 决定 左移, 上移, 右移, 下移的因素 是 判断 targetViewCenter 在屏幕四个方位的哪个位置
+        if (CZArrowMenuPointingPosition_Top == self.pointingPosition || CZArrowMenuPointingPosition_Bottom == self.pointingPosition) {
+            effectViewOrigin.x = offsetDir == OffsetDirection_left ? effectViewOrigin.x - 1 : effectViewOrigin.x + 1;
+            autoLayoutOffset = offsetDir == OffsetDirection_left ? UIEdgeInsetsMake(0, (k_appKeyWindow.frame.size.height * .5f - timeout), 0, 0) : UIEdgeInsetsMake(0, 0, 0, (k_appKeyWindow.frame.size.height * .5f - timeout));
+        }
+        if (CZArrowMenuPointingPosition_Right == self.pointingPosition || CZArrowMenuPointingPosition_Left == self.pointingPosition) {
+            effectViewOrigin.y = offsetDir == OffsetDirection_top ? effectViewOrigin.y - 1 : effectViewOrigin.y + 1;
+            autoLayoutOffset = offsetDir == OffsetDirection_top ? UIEdgeInsetsMake((k_appKeyWindow.frame.size.height * .5f - timeout), 0, 0, 0) : UIEdgeInsetsMake(0, 0, (k_appKeyWindow.frame.size.height * .5f - timeout), 0);
+        }
+        effectViewRect = CGRectMake(effectViewOrigin.x, effectViewOrigin.y, effectViewSize.width, effectViewSize.height);
+    }
+    
+    CZArrowMenuBeyondScreenJudgeResult re = {isBeyond, autoLayoutOffset};
+    NSLog(@"effectViewRect = %@\ninterRect = %@",NSStringFromCGRect(effectViewRect), NSStringFromCGRect(interRec));
+    return re;
+}
+
+/**
+ 在尝试计算偏移时, 通过 pointPosition 和 targetView center 来判断应该往 左上右下 四个方向中的哪一个方向偏移
+ */
+- (OffsetDirection)offsetDirectionWithCenter:(CGPoint)center pointingPosition:(CZArrowMenuPointingPosition)pointPosition
+{
+    if (CZArrowMenuPointingPosition_Top == self.pointingPosition || CZArrowMenuPointingPosition_Bottom == self.pointingPosition) {
+        return (center.x < k_appKeyWindow.bounds.size.width / 2) ? OffsetDirection_right : OffsetDirection_left;
+    }
+    if (CZArrowMenuPointingPosition_Left == self.pointingPosition || CZArrowMenuPointingPosition_Right == self.pointingPosition) {
+        return (center.y < k_appKeyWindow.bounds.size.height / 2) ? OffsetDirection_bottom : OffsetDirection_top;
+    }
+    return 0;
 }
 
 /**
