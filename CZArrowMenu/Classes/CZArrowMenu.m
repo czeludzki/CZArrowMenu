@@ -351,6 +351,12 @@ typedef struct EffectViewRectInfo{
     return rectInfo;
 }
 
+
+/**
+ 判断 effectView 是否超出屏幕显示, 分为两种情况, 1.因为定位问题而超出屏幕. 2.因为宽高超出屏幕
+ 通过 targetView 位置 以及 effectView 的大小 修复 effectView 的定位 以及 宽高
+ 返回 修复的结果
+ */
 - (CZArrowMenuBeyondScreenJudgeResult)judgeEffectViewIsBeyondScreenWithTargetViewCenter:(CGPoint)targetViewCenter effectViewSize:(CGSize)effectViewSize targetViewRectInWindow:(CGRect)targetRectInWindow
 {
     // 先计算出 effectView 在 window 上的 Rect
@@ -362,10 +368,10 @@ typedef struct EffectViewRectInfo{
         effectViewOrigin = CGPointMake(targetViewCenter.x - (targetRectInWindow.size.width * .5f + effectViewSize.width), targetViewCenter.y - effectViewSize.height * .5f);
     }
     if (CZArrowMenuPointingPosition_Bottom == self.pointingPosition) {
-        effectViewOrigin = CGPointMake(targetViewCenter.x + effectViewSize.width * .5f, targetViewCenter.y + (targetRectInWindow.size.height * .5f + effectViewSize.height));
+        effectViewOrigin = CGPointMake(targetViewCenter.x - effectViewSize.width * .5f, targetViewCenter.y + (targetRectInWindow.size.height * .5f));
     }
     if (CZArrowMenuPointingPosition_Right == self.pointingPosition) {
-        effectViewOrigin = CGPointMake(targetViewCenter.x + (targetRectInWindow.size.width * .5f + effectViewSize.width), targetViewCenter.y - effectViewSize.height * .5f);
+        effectViewOrigin = CGPointMake(targetViewCenter.x + (targetRectInWindow.size.width * .5f), targetViewCenter.y - effectViewSize.height * .5f);
     }
 
     CGRect effectViewRect = {effectViewOrigin, effectViewSize};
@@ -454,6 +460,11 @@ typedef struct EffectViewRectInfo{
     
     [self layoutIfNeeded];
     [self updateConstraintsIfNeeded];
+    
+    // 获取 targetView 的 四条边的 中点 在 keyWindow 上的 位置
+    CGPoint arrowCenterInEffectView = [self calculateArrawCenterInEffectView];
+    
+    
     CGSize contentSize = self.effectView.frame.size;
     // 已知 等边三角形高度, 求等边三角形的边长
     CGFloat lengthOfSide = k_arrowHeight / k_triangleRatio;
@@ -534,6 +545,42 @@ typedef struct EffectViewRectInfo{
     
     maskLayer.path = b_path.CGPath;
     return maskLayer;
+}
+
+
+/**
+ 计算 targetView 的 四边 中点 在 keyWindow 上 的 位置
+ */
+- (CGPoint)targetViewSideOfCenterInKeyWindow
+{
+    CGPoint t_p = [k_appKeyWindow convertPoint:self.targetView.center toView:k_appKeyWindow];
+    CGRect t_r = [self.targetView convertRect:self.targetView.bounds toView:k_appKeyWindow];
+
+    if (CZArrowMenuPointingPosition_Top == self.pointingPosition) {
+        t_p.y = t_p.y - t_r.size.height * .5f;
+    }
+    if (CZArrowMenuPointingPosition_Left == self.pointingPosition) {
+        t_p.x = t_p.x - t_r.size.width * .5f;
+    }
+    if (CZArrowMenuPointingPosition_Bottom == self.pointingPosition) {
+        t_p.y = t_p.y + t_r.size.height * .5f;
+    }
+    if (CZArrowMenuPointingPosition_Right == self.pointingPosition) {
+        t_p.x = t_p.x + t_r.size.width * .5f;
+    }
+    return t_p;
+}
+
+- (CGPoint)calculateArrawCenterInEffectView
+{
+    CGPoint targetSideCenterInWindow = [self targetViewSideOfCenterInKeyWindow];
+    CGPoint t_p = [self convertPoint:targetSideCenterInWindow toView:self.effectView];
+    t_p.y = self.effectView.bounds.size.height * .5f;
+    UIView *sss = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 3, 3)];
+    sss.backgroundColor = [UIColor redColor];
+    sss.center = t_p;
+    [self.effectView.contentView addSubview:sss];
+    return t_p;
 }
 
 /**
