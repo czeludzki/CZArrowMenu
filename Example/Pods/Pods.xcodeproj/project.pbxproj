@@ -12,6 +12,8 @@
 		2D5C16260C9387F05098D9E4884F08C9 /* MASConstraint.h in Headers */ = {isa = PBXBuildFile; fileRef = ECBBB506D4D551AB1A637EE3145A459E /* MASConstraint.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		2E52782DCABA85627D40476FAD4B03E1 /* MASConstraint+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = 77F2CF8861113B6F7AAE7EA65C6A7C1B /* MASConstraint+Private.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		3E25BCB86354B5617E291F23E7A2929A /* MASViewAttribute.m in Sources */ = {isa = PBXBuildFile; fileRef = 0925CC604B01F156279E8952DDE3EDDB /* MASViewAttribute.m */; };
+		43C5EDD22171170A00401C70 /* CZArrowMenuTableViewCell.h in Headers */ = {isa = PBXBuildFile; fileRef = 43C5EDD02171170A00401C70 /* CZArrowMenuTableViewCell.h */; };
+		43C5EDD32171170A00401C70 /* CZArrowMenuTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 43C5EDD12171170A00401C70 /* CZArrowMenuTableViewCell.m */; };
 		494BF4EB26DA425083ED531FA5FF141A /* View+MASAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = 7EC0A25DD6F58D072A4ACFC92D9237BF /* View+MASAdditions.m */; };
 		4A2ECF9F755D00A872790D3F15AAAD65 /* MASLayoutConstraint.m in Sources */ = {isa = PBXBuildFile; fileRef = 611E26C24600589F4729E5EF510272FB /* MASLayoutConstraint.m */; };
 		4A8D1EB0E49944D3991CCBC5B329F2B2 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 848A22C69638D55424736A7E57530671 /* Foundation.framework */; };
@@ -97,6 +99,8 @@
 		3969A4457587B00FAE59180F6061E7DE /* Pods-CZArrowMenu_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-CZArrowMenu_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		3980E01C213ECEDEABAC38C1CFD3946D /* ViewController+MASAdditions.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = "ViewController+MASAdditions.m"; path = "Masonry/ViewController+MASAdditions.m"; sourceTree = "<group>"; };
 		3F926DF348426BAAE7F005F0217A3E73 /* Pods-CZArrowMenu_Tests-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-CZArrowMenu_Tests-resources.sh"; sourceTree = "<group>"; };
+		43C5EDD02171170A00401C70 /* CZArrowMenuTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CZArrowMenuTableViewCell.h; sourceTree = "<group>"; };
+		43C5EDD12171170A00401C70 /* CZArrowMenuTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CZArrowMenuTableViewCell.m; sourceTree = "<group>"; };
 		537638D0C329C86D4ED401237F5D895F /* MASCompositeConstraint.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = MASCompositeConstraint.m; path = Masonry/MASCompositeConstraint.m; sourceTree = "<group>"; };
 		56D0AC5D80A2F3247205274AD1CE3FCD /* CZArrowMenu.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = CZArrowMenu.xcconfig; sourceTree = "<group>"; };
 		57479A6AA179CE757A08F7B0CBCABBA9 /* Pods-CZArrowMenu_Example-umbrella.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = "Pods-CZArrowMenu_Example-umbrella.h"; sourceTree = "<group>"; };
@@ -215,6 +219,8 @@
 			children = (
 				10E4FD0B8AA871CDF985F146DFF2AE0F /* CZArrowMenuCollectionViewCell.h */,
 				DE041C1646CFDF5CE40FAC509780B620 /* CZArrowMenuCollectionViewCell.m */,
+				43C5EDD02171170A00401C70 /* CZArrowMenuTableViewCell.h */,
+				43C5EDD12171170A00401C70 /* CZArrowMenuTableViewCell.m */,
 			);
 			name = Cells;
 			path = CZArrowMenu/Classes/Cells;
@@ -404,6 +410,7 @@
 			files = (
 				F6D1B2DF4CA8F5F920B5E09AC30FCA1C /* CZArrowMenu-umbrella.h in Headers */,
 				91B5BB689647DBA0403F3F0570D73507 /* CZArrowMenu.h in Headers */,
+				43C5EDD22171170A00401C70 /* CZArrowMenuTableViewCell.h in Headers */,
 				8BE8D9409006D68711370630B82AB507 /* CZArrowMenuCollectionViewCell.h in Headers */,
 				5EABF37174EAF26A500D49F1B1CAE709 /* CZArrowMenuItem.h in Headers */,
 			);
@@ -558,6 +565,7 @@
 			files = (
 				4B73D20D583346EE3ED2D802D534D190 /* CZArrowMenu-dummy.m in Sources */,
 				94FB579168399461D6838EE0E9D45296 /* CZArrowMenu.m in Sources */,
+				43C5EDD32171170A00401C70 /* CZArrowMenuTableViewCell.m in Sources */,
 				D52D055EA6C6F3F9B3F09E057B0D257F /* CZArrowMenuCollectionViewCell.m in Sources */,
 				9DFEC4F7AFD83A74AF92FE410586D4AC /* CZArrowMenuItem.m in Sources */,
 			);

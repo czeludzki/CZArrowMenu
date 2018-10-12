@@ -28,11 +28,11 @@
 
 - (IBAction)btnOnClick:(UIButton *)sender {
     CZArrowMenuItem *item0 = [[CZArrowMenuItem alloc] init];
-//    item0.title = @"000";
+    item0.title = @"000";
     item0.img = [UIImage imageNamed:@"front_btn_bold"];
     
     CZArrowMenuItem *item1 = [[CZArrowMenuItem alloc] init];
-//    item1.title = @"1111";
+    item1.title = @"1111";
     item1.img = [UIImage imageNamed:@"front_btn_italic"];
     
     CZArrowMenuItem *item2 = [[CZArrowMenuItem alloc] init];
@@ -63,7 +63,8 @@
     CZArrowMenuItem *item9 = [[CZArrowMenuItem alloc] init];
     item9.img = [UIImage imageNamed:@"front_btn_h3"];
     
-    CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Horizontal Items:@[item0, item1, item2, item3, item4, item5, item6, item7, item8, item9]];
+//    CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Vertical Items:@[item0, item1, item2, item3, item4, item5, item6, item7, item8, item9]];
+    CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Vertical Items:@[item0, item1, item2, item3]];
     [m showWithArrowTarget:sender pointingPosition:CZArrowMenuPointingPosition_Bottom];
 }
 

@@ -7,6 +7,7 @@
 //
 
 #import "CZArrowMenu.h"
+#import "CZArrowMenuTableViewCell.h"
 #import "CZArrowMenuCollectionViewCell.h"
 #import <Masonry/Masonry.h>
 
@@ -96,11 +97,13 @@ typedef NS_ENUM(NSUInteger, OffsetDirection) {
     return _effectView;
 }
 
+static NSString *CZArrowMenuTableViewCellID = @"CZArrowMenuTableViewCellID";
 - (UITableView *)tableView
 {
     if (!_tableView) {
-        _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
-        _tableView.backgroundColor = [UIColor redColor];
+        _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleGrouped];
+        _tableView.backgroundColor = [UIColor clearColor];
+        [_tableView registerClass:[CZArrowMenuTableViewCell class] forCellReuseIdentifier:CZArrowMenuTableViewCellID];
         _tableView.delegate = self;
         _tableView.dataSource = self;
     }
@@ -201,12 +204,14 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
 #pragma mark - UITableViewDelegate, UITableViewDataSource
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 0;
+    return self.items.count;
 }
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return nil;
+    CZArrowMenuTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CZArrowMenuTableViewCellID forIndexPath:indexPath];
+    cell.item = self.items[indexPath.row];
+    return cell;
 }
 
 #pragma mark - Helper
@@ -309,6 +314,9 @@ typedef struct EffectViewRectInfo{
     // 如果 mainContentView 是 collectionView, effectView 的高度为 k_collectionViewHeight + k_arrowHeight
     if (self.direction == CZArrowMenuDirection_Horizontal) {
         h = k_collectionViewHeight + k_arrowHeight;
+    }
+    if (self.direction == CZArrowMenuDirection_Vertical) {
+        w = 128;
     }
     
     effectView_size = CGSizeMake(w, h);
@@ -464,7 +472,6 @@ typedef struct EffectViewRectInfo{
     // 获取 targetView 的 四条边的 中点 在 keyWindow 上的 位置
     CGPoint arrowCenterInEffectView = [self calculateArrawCenterInEffectView];
     
-    
     CGSize contentSize = self.effectView.frame.size;
     // 已知 等边三角形高度, 求等边三角形的边长
     CGFloat lengthOfSide = k_arrowHeight / k_triangleRatio;
@@ -488,7 +495,7 @@ typedef struct EffectViewRectInfo{
         maskH = contentSize.height;
         
         move2PointX = contentSize.width - k_arrowHeight;
-        move2PointY = 0;
+        move2PointY = arrowCenterInEffectView.y - lengthOfSide * .5f;
         
         addLine2PointX_firstStep = contentSize.width;
         addLine2PointY_firstStep = (lengthOfSide / 2) + move2PointY;
@@ -503,7 +510,7 @@ typedef struct EffectViewRectInfo{
         maskX = k_arrowHeight;
         
         move2PointX = k_arrowHeight;
-        move2PointY = 0;
+        move2PointY = arrowCenterInEffectView.y - lengthOfSide * .5f;
         
         addLine2PointX_firstStep = 0;
         addLine2PointY_firstStep = (lengthOfSide / 2) + move2PointY;
@@ -515,6 +522,7 @@ typedef struct EffectViewRectInfo{
         maskW = contentSize.width;
         maskH = contentSize.height - k_arrowHeight;
         
+        move2PointX = arrowCenterInEffectView.x - lengthOfSide * .5f;
         move2PointY = contentSize.height - k_arrowHeight;
         
         addLine2PointX_firstStep = (lengthOfSide / 2) + move2PointX;
@@ -529,6 +537,7 @@ typedef struct EffectViewRectInfo{
         
         maskY = k_arrowHeight;
         
+        move2PointX = arrowCenterInEffectView.x - lengthOfSide * .5f;
         move2PointY = k_arrowHeight;
         
         addLine2PointX_firstStep = (lengthOfSide / 2) + move2PointX;
@@ -546,7 +555,6 @@ typedef struct EffectViewRectInfo{
     maskLayer.path = b_path.CGPath;
     return maskLayer;
 }
-
 
 /**
  计算 targetView 的 四边 中点 在 keyWindow 上 的 位置
@@ -574,12 +582,20 @@ typedef struct EffectViewRectInfo{
 - (CGPoint)calculateArrawCenterInEffectView
 {
     CGPoint targetSideCenterInWindow = [self targetViewSideOfCenterInKeyWindow];
+    // 将 targetView 对应的边的中点转换为 self.effectView 的坐标
     CGPoint t_p = [self convertPoint:targetSideCenterInWindow toView:self.effectView];
-    t_p.y = self.effectView.bounds.size.height * .5f;
-    UIView *sss = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 3, 3)];
-    sss.backgroundColor = [UIColor redColor];
-    sss.center = t_p;
-    [self.effectView.contentView addSubview:sss];
+    if (CZArrowMenuPointingPosition_Top == self.pointingPosition) {
+        t_p.y = self.effectView.bounds.size.height - k_arrowHeight;
+    }
+    if (CZArrowMenuPointingPosition_Left == self.pointingPosition) {
+        t_p.x = self.effectView.bounds.size.width - k_arrowHeight;
+    }
+    if (CZArrowMenuPointingPosition_Bottom == self.pointingPosition) {
+        t_p.y = k_arrowHeight;
+    }
+    if (CZArrowMenuPointingPosition_Right == self.pointingPosition) {
+        t_p.x = k_arrowHeight;
+    }
     return t_p;
 }
 
