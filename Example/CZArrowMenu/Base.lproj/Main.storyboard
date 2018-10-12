@@ -22,7 +22,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="b7d-zu-8GY">
-                                <rect key="frame" x="313" y="64" width="46" height="30"/>
+                                <rect key="frame" x="312.5" y="64" width="46" height="30"/>
                                 <color key="backgroundColor" red="0.1843137255" green="0.62745098040000002" blue="0.51764705879999995" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <state key="normal" title="Button"/>
@@ -77,7 +77,7 @@
                             <constraint firstItem="2JS-ly-ahf" firstAttribute="leading" secondItem="TpU-gO-2f1" secondAttribute="leading" constant="16" id="GxK-vp-Yk7"/>
                             <constraint firstItem="0NR-S2-Mco" firstAttribute="centerX" secondItem="TpU-gO-2f1" secondAttribute="centerX" id="J5n-Hd-qNP"/>
                             <constraint firstAttribute="trailing" secondItem="9mQ-Pm-5Es" secondAttribute="trailing" constant="16" id="b1V-BP-fcv"/>
-                            <constraint firstAttribute="trailing" secondItem="b7d-zu-8GY" secondAttribute="trailing" constant="16" id="xPn-VZ-Vd3"/>
+                            <constraint firstAttribute="trailing" secondItem="b7d-zu-8GY" secondAttribute="trailing" constant="16.5" id="xPn-VZ-Vd3"/>
                             <constraint firstItem="Mvr-aV-6Um" firstAttribute="top" secondItem="9mQ-Pm-5Es" secondAttribute="bottom" constant="44" id="y85-8Q-sCf"/>
                         </constraints>
                     </view>

@@ -48,7 +48,22 @@
 //    item4.title = @"44";
     item4.img = [UIImage imageNamed:@"front_btn_h3"];
     
-    CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Horizontal Items:@[item0, item1, item2, item3, item4]];
+    CZArrowMenuItem *item5 = [[CZArrowMenuItem alloc] init];
+    item5.img = [UIImage imageNamed:@"front_btn_h3"];
+
+    CZArrowMenuItem *item6 = [[CZArrowMenuItem alloc] init];
+    item6.img = [UIImage imageNamed:@"front_btn_h3"];
+    
+    CZArrowMenuItem *item7 = [[CZArrowMenuItem alloc] init];
+    item7.img = [UIImage imageNamed:@"front_btn_h3"];
+    
+    CZArrowMenuItem *item8 = [[CZArrowMenuItem alloc] init];
+    item8.img = [UIImage imageNamed:@"front_btn_h3"];
+    
+    CZArrowMenuItem *item9 = [[CZArrowMenuItem alloc] init];
+    item9.img = [UIImage imageNamed:@"front_btn_h3"];
+    
+    CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Horizontal Items:@[item0, item1, item2, item3, item4, item5, item6, item7, item8, item9]];
     [m showWithArrowTarget:sender pointingPosition:CZArrowMenuPointingPosition_Bottom];
 }
 
