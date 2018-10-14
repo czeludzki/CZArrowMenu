@@ -65,7 +65,7 @@
     
 //    CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Vertical Items:@[item0, item1, item2, item3, item4, item5, item6, item7, item8, item9]];
     CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Vertical Items:@[item0, item1, item2, item3]];
-    [m showWithArrowTarget:sender pointingPosition:CZArrowMenuPointingPosition_Bottom];
+    [m showWithArrowTarget:sender pointingPosition:CZArrowMenuPointingPosition_Left];
 }
 
 @end

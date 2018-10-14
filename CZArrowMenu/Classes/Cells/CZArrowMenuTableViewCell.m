@@ -19,7 +19,7 @@
 {
     if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
         self.backgroundColor = [UIColor clearColor];
-        
+        self.separatorInset = UIEdgeInsetsMake(0, 8, 0, 8);
         UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
         [self.contentView addSubview:button];
         self.button = button;

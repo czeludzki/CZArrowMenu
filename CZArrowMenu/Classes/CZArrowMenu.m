@@ -101,9 +101,11 @@ static NSString *CZArrowMenuTableViewCellID = @"CZArrowMenuTableViewCellID";
 - (UITableView *)tableView
 {
     if (!_tableView) {
-        _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStyleGrouped];
-        _tableView.backgroundColor = [UIColor clearColor];
+        _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
         [_tableView registerClass:[CZArrowMenuTableViewCell class] forCellReuseIdentifier:CZArrowMenuTableViewCellID];
+        _tableView.backgroundColor = [UIColor clearColor];
+        _tableView.showsVerticalScrollIndicator = NO;
+        _tableView.showsHorizontalScrollIndicator = NO;
         _tableView.delegate = self;
         _tableView.dataSource = self;
     }
@@ -118,6 +120,8 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
         layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
         _collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:layout];
         _collectionView.backgroundColor = [UIColor clearColor];
+        _collectionView.showsVerticalScrollIndicator = NO;
+        _collectionView.showsHorizontalScrollIndicator = NO;
         [_collectionView registerClass:[CZArrowMenuCollectionViewCell class] forCellWithReuseIdentifier:CZArrowMenuCollectionViewCellID];
         _collectionView.delegate = self;
         _collectionView.dataSource = self;
@@ -135,13 +139,28 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
     return t_arr[self.pointingPosition].UIEdgeInsetsValue;
 }
 
+- (void)setEdgeInsetsFromWindow:(UIEdgeInsets)edgeInsetsFromWindow
+{
+    _edgeInsetsFromWindow = edgeInsetsFromWindow;
+    if (@available(iOS 11.0, *)) {
+        _edgeInsetsFromWindow.top += k_appKeyWindow.safeAreaInsets.top;
+        _edgeInsetsFromWindow.left += k_appKeyWindow.safeAreaInsets.left;
+        _edgeInsetsFromWindow.bottom += k_appKeyWindow.safeAreaInsets.bottom;
+        _edgeInsetsFromWindow.right += k_appKeyWindow.safeAreaInsets.right;
+    }
+}
+
 #pragma mark - life cycle
 - (instancetype)initWithDirection:(CZArrowMenuDirection)direction Items:(NSArray <CZArrowMenuItem *>*)items
 {
     if (self = [super init]) {
-        self.items = items;
-        self.direction = direction;
-        self.edgeInsetsFromWindow = UIEdgeInsetsMake(15, 15, 15, 15);
+        _items = items;
+        _direction = direction;
+        if (@available(iOS 11.0, *)) {
+            _edgeInsetsFromWindow = UIEdgeInsetsMake(15 + k_appKeyWindow.safeAreaInsets.top, 15 + k_appKeyWindow.safeAreaInsets.left, 15 + k_appKeyWindow.safeAreaInsets.bottom, 15 + k_appKeyWindow.safeAreaInsets.right);
+        } else {
+            _edgeInsetsFromWindow = UIEdgeInsetsMake(15, 15, 15, 15);
+        }
         self.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:.3f];
         NSAssert((self.direction == CZArrowMenuDirection_Horizontal || self.direction == CZArrowMenuDirection_Vertical), @"direction 值有误");
         
@@ -211,7 +230,17 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
 {
     CZArrowMenuTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CZArrowMenuTableViewCellID forIndexPath:indexPath];
     cell.item = self.items[indexPath.row];
+    if (indexPath.row == self.items.count - 1){
+        cell.separatorInset = UIEdgeInsetsMake(0, 0, 0, tableView.bounds.size.width);
+    }else{
+        cell.separatorInset = UIEdgeInsetsMake(0, 8, 0, 8);
+    }
     return cell;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 44;
 }
 
 #pragma mark - Helper

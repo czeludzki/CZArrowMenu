@@ -29,9 +29,9 @@ typedef NS_ENUM(NSUInteger, CZArrowMenuPointingPosition) {
 
 @interface CZArrowMenu : UIView
 @property (assign, nonatomic) UIEdgeInsets edgeInsetsFromWindow;
-
 - (instancetype)initWithDirection:(CZArrowMenuDirection)direction Items:(NSArray <CZArrowMenuItem *>*)items;
 - (void)showWithArrowTarget:(UIView *)arrowTarget pointingPosition:(CZArrowMenuPointingPosition)pointingPosition;
+
 @end
 
 NS_ASSUME_NONNULL_END
