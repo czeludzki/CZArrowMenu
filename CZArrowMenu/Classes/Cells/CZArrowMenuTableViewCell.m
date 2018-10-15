@@ -6,7 +6,7 @@
 //
 
 #import "CZArrowMenuTableViewCell.h"
-#import <Masonry/Masonry.h>
+#import "Masonry.h"
 #import "CZArrowMenuCellDelegate.h"
 
 @interface CZArrowMenuTableViewCell ()

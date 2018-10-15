@@ -9,7 +9,7 @@
 #import "CZArrowMenu.h"
 #import "CZArrowMenuTableViewCell.h"
 #import "CZArrowMenuCollectionViewCell.h"
-#import <Masonry/Masonry.h>
+#import "Masonry.h"
 #import "CZArrowMenuCellDelegate.h"
 
 #define k_appKeyWindow [UIApplication sharedApplication].keyWindow
