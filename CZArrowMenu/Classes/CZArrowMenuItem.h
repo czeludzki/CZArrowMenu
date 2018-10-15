@@ -8,6 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
+@class CZArrowMenuItem;
+typedef void(^CZArrowMenuItemHandler)(CZArrowMenuItem *item, NSInteger index);
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface CZArrowMenuItem : NSObject
@@ -17,6 +20,11 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) UIColor *tintColor;
 @property (nonatomic, strong) UIColor *selectedColor;
 @property (nonatomic, assign) BOOL selected;
+@property (nonatomic, copy, readonly) CZArrowMenuItemHandler handler;
+
+- (instancetype)initWithTitle:(NSString *)title image:(UIImage *)image handler:(CZArrowMenuItemHandler)handler;
+- (instancetype)initWithTitle:(NSString *)title image:(UIImage *)image;
+
 @end
 
 NS_ASSUME_NONNULL_END

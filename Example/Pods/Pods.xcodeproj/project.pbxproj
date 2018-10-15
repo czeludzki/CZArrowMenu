@@ -99,6 +99,7 @@
 		3969A4457587B00FAE59180F6061E7DE /* Pods-CZArrowMenu_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; path = "Pods-CZArrowMenu_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		3980E01C213ECEDEABAC38C1CFD3946D /* ViewController+MASAdditions.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = "ViewController+MASAdditions.m"; path = "Masonry/ViewController+MASAdditions.m"; sourceTree = "<group>"; };
 		3F926DF348426BAAE7F005F0217A3E73 /* Pods-CZArrowMenu_Tests-resources.sh */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.script.sh; path = "Pods-CZArrowMenu_Tests-resources.sh"; sourceTree = "<group>"; };
+		4350DA2F217441D50066CD2D /* CZArrowMenuCellDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CZArrowMenuCellDelegate.h; sourceTree = "<group>"; };
 		43C5EDD02171170A00401C70 /* CZArrowMenuTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CZArrowMenuTableViewCell.h; sourceTree = "<group>"; };
 		43C5EDD12171170A00401C70 /* CZArrowMenuTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CZArrowMenuTableViewCell.m; sourceTree = "<group>"; };
 		537638D0C329C86D4ED401237F5D895F /* MASCompositeConstraint.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; name = MASCompositeConstraint.m; path = Masonry/MASCompositeConstraint.m; sourceTree = "<group>"; };
@@ -217,6 +218,7 @@
 		28B6366E81A2F392E586DD9D87892445 /* Cells */ = {
 			isa = PBXGroup;
 			children = (
+				4350DA2F217441D50066CD2D /* CZArrowMenuCellDelegate.h */,
 				10E4FD0B8AA871CDF985F146DFF2AE0F /* CZArrowMenuCollectionViewCell.h */,
 				DE041C1646CFDF5CE40FAC509780B620 /* CZArrowMenuCollectionViewCell.m */,
 				43C5EDD02171170A00401C70 /* CZArrowMenuTableViewCell.h */,

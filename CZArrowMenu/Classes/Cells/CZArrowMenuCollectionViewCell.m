@@ -7,6 +7,7 @@
 
 #import "CZArrowMenuCollectionViewCell.h"
 #import <Masonry/Masonry.h>
+#import "CZArrowMenuCellDelegate.h"
 
 @interface CZArrowMenuCollectionViewCell ()
 @property (nonatomic, weak) UIButton *button;
@@ -18,6 +19,7 @@
 {
     if (self = [super initWithFrame:frame]) {
         UIButton *button = [UIButton buttonWithType:UIButtonTypeSystem];
+        [button addTarget:self action:@selector(btnOnClick:) forControlEvents:UIControlEventTouchUpInside];
         [self.contentView addSubview:button];
         self.button = button;
         [button mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -34,6 +36,13 @@
     self.button.titleLabel.font = _item.font;
     [self.button setTitle:_item.title forState:UIControlStateNormal];
     [self.button setImage:_item.img forState:UIControlStateNormal];
+}
+
+- (void)btnOnClick:(UIButton *)sender
+{
+    if ([self.delegate respondsToSelector:@selector(arrowMenuCell:didSelectedItem:)]) {
+        [self.delegate arrowMenuCell:self didSelectedItem:self.item];
+    }
 }
 
 @end

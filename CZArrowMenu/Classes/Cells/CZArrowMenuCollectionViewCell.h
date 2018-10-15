@@ -10,8 +10,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol CZArrowMenuCellDelegate;
+
 @interface CZArrowMenuCollectionViewCell : UICollectionViewCell
 @property (nonatomic, strong) CZArrowMenuItem *item;
+@property (nonatomic, weak) id <CZArrowMenuCellDelegate> delegate;
 @end
 
 NS_ASSUME_NONNULL_END

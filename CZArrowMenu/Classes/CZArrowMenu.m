@@ -10,19 +10,21 @@
 #import "CZArrowMenuTableViewCell.h"
 #import "CZArrowMenuCollectionViewCell.h"
 #import <Masonry/Masonry.h>
+#import "CZArrowMenuCellDelegate.h"
 
 #define k_appKeyWindow [UIApplication sharedApplication].keyWindow
 // 圆角度数
 #define k_cornerRadius 8.0
-// collectionview 高度
-#define k_collectionViewHeight 44.0
+// collectionview item size 默认宽高, 以及 tableView cell 默认高度
+#define k_defaultWH 44.0
+// tableView 的默认宽度
+#define k_defaultTableViewWidth 128
 // collectionviewCell 间距
 #define k_collectionViewMargin 8.0
 // 箭头高度
 #define k_arrowHeight 8
 // 等边三角形 高度(0.86625) : 边长(1)
 #define k_triangleRatio 0.86625
-
 
 /**
  用这个结构体来表示 计算好后的 self.effectView 位置
@@ -61,6 +63,11 @@ typedef struct CZArrowMenuBeyondScreenJudgeResult{
     UIEdgeInsets sizeOffset;
 }CZArrowMenuBeyondScreenJudgeResult;
 
+typedef struct EffectViewRectInfo{
+    CZArrowCenterPosition position;
+    CGSize size;
+} EffectViewRectInfo;
+
 // 需要偏移的方向
 typedef NS_ENUM(NSUInteger, OffsetDirection) {
     OffsetDirection_top = 0,
@@ -69,7 +76,7 @@ typedef NS_ENUM(NSUInteger, OffsetDirection) {
     OffsetDirection_right = 3,
 };
 
-@interface CZArrowMenu () <UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UITableViewDelegate, UITableViewDataSource>
+@interface CZArrowMenu () <UICollectionViewDelegateFlowLayout, UICollectionViewDataSource, UITableViewDelegate, UITableViewDataSource, CZArrowMenuCellDelegate>
 @property (nonatomic, assign) CZArrowMenuDirection direction;
 @property (nonatomic, assign) CZArrowMenuPointingPosition pointingPosition;
 @property (nonatomic, strong) NSArray <CZArrowMenuItem *>*items;
@@ -81,13 +88,14 @@ typedef NS_ENUM(NSUInteger, OffsetDirection) {
  在给 tableView 或 collectionView 设置 autoLayout 定位时, 需要根据 self.pointingPosition 给四周预留空间放置 箭头
  */
 @property (readonly) UIEdgeInsets contentEdges;
+@property (readonly) CGAffineTransform effectViewTransform;
+@property (nonatomic, assign) EffectViewRectInfo effectViewRectInfo;
 @property (nonatomic, weak) UIView *targetView;
 @end
 
 @implementation CZArrowMenu
 
 #pragma mark - Getter && Setter
-
 - (UIVisualEffectView *)effectView
 {
     if (!_effectView) {
@@ -104,6 +112,7 @@ static NSString *CZArrowMenuTableViewCellID = @"CZArrowMenuTableViewCellID";
         _tableView = [[UITableView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
         [_tableView registerClass:[CZArrowMenuTableViewCell class] forCellReuseIdentifier:CZArrowMenuTableViewCellID];
         _tableView.backgroundColor = [UIColor clearColor];
+        _tableView.separatorColor = [UIColor lightGrayColor];
         _tableView.showsVerticalScrollIndicator = NO;
         _tableView.showsHorizontalScrollIndicator = NO;
         _tableView.delegate = self;
@@ -139,6 +148,16 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
     return t_arr[self.pointingPosition].UIEdgeInsetsValue;
 }
 
+- (CGAffineTransform)effectViewTransform
+{
+    NSValue *transform_top = [NSValue valueWithCGAffineTransform:CGAffineTransformMakeTranslation(self.effectViewRectInfo.position.offset.left + self.effectViewRectInfo.position.offset.right, self.effectView.bounds.size.height * .5f)];
+    NSValue *transform_left = [NSValue valueWithCGAffineTransform:CGAffineTransformMakeTranslation(self.effectView.bounds.size.width * .5f, self.effectViewRectInfo.position.offset.top + self.effectViewRectInfo.position.offset.bottom)];
+    NSValue *transform_bottom = [NSValue valueWithCGAffineTransform:CGAffineTransformMakeTranslation(self.effectViewRectInfo.position.offset.left + self.effectViewRectInfo.position.offset.right, -self.effectView.bounds.size.height / 2)];
+    NSValue *transform_right = [NSValue valueWithCGAffineTransform:CGAffineTransformMakeTranslation(-self.effectView.bounds.size.width * .5f, self.effectViewRectInfo.position.offset.top + self.effectViewRectInfo.position.offset.bottom)];
+    NSArray <NSValue *>*t_arr = @[transform_top, transform_left, transform_bottom, transform_right];
+    return t_arr[self.pointingPosition].CGAffineTransformValue;
+}
+
 - (void)setEdgeInsetsFromWindow:(UIEdgeInsets)edgeInsetsFromWindow
 {
     _edgeInsetsFromWindow = edgeInsetsFromWindow;
@@ -150,12 +169,41 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
     }
 }
 
+- (void)setSelectedColor:(UIColor *)selectedColor
+{
+    _selectedColor = selectedColor;
+    [self.items makeObjectsPerformSelector:@selector(setSelectedColor:) withObject:_selectedColor];
+}
+
+- (void)setTintColor:(UIColor *)tintColor
+{
+    [super setTintColor:tintColor];
+    [self.items makeObjectsPerformSelector:@selector(setTintColor:) withObject:tintColor];
+}
+
+- (void)setFont:(UIFont *)font
+{
+    _font = font;
+    [self.items makeObjectsPerformSelector:@selector(setFont:) withObject:_font];
+}
+
+- (void)setEffectStyle:(UIBlurEffectStyle)effectStyle
+{
+    _effectStyle = effectStyle;
+    self.effectView.effect = [UIBlurEffect effectWithStyle:_effectStyle];
+}
+
 #pragma mark - life cycle
-- (instancetype)initWithDirection:(CZArrowMenuDirection)direction Items:(NSArray <CZArrowMenuItem *>*)items
+- (instancetype)initWithDirection:(CZArrowMenuDirection)direction items:(NSArray <CZArrowMenuItem *>*)items
 {
     if (self = [super init]) {
         _items = items;
         _direction = direction;
+        _autoDismissWhenItemSelected = YES;
+        _contentHeight = k_defaultWH;
+        _contentWidth = direction == CZArrowMenuDirection_Vertical ? k_defaultTableViewWidth : k_defaultWH;
+        _contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
+        
         if (@available(iOS 11.0, *)) {
             _edgeInsetsFromWindow = UIEdgeInsetsMake(15 + k_appKeyWindow.safeAreaInsets.top, 15 + k_appKeyWindow.safeAreaInsets.left, 15 + k_appKeyWindow.safeAreaInsets.bottom, 15 + k_appKeyWindow.safeAreaInsets.right);
         } else {
@@ -176,6 +224,8 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
         if (direction == CZArrowMenuDirection_Vertical) {
             [self.effectView.contentView addSubview:self.tableView];
         }
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(deviceOrientationDidChangeNotification:) name:UIDeviceOrientationDidChangeNotification object:nil];
     }
     return self;
 }
@@ -183,7 +233,7 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
 #pragma mark - Action
 - (void)tapOnView:(UITapGestureRecognizer *)sender
 {
-    [self removeFromSuperview];
+    [self dismiss];
 }
 
 #pragma mark - UICollectionViewDelegateFlowLayout, UICollectionViewDataSource,
@@ -196,6 +246,7 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
 {
     CZArrowMenuCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:CZArrowMenuCollectionViewCellID forIndexPath:indexPath];
     cell.item = self.items[indexPath.item];
+    cell.delegate = self;
     return cell;
 }
 
@@ -207,7 +258,7 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
     [t_b setTitle:item.title forState:UIControlStateNormal];
     [t_b setImage:item.img forState:UIControlStateNormal];
     [t_b sizeToFit];
-    return CGSizeMake(t_b.frame.size.width, k_collectionViewHeight - k_collectionViewMargin);
+    return CGSizeMake(t_b.frame.size.width, self.contentHeight - k_collectionViewMargin);
 }
 
 - (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section
@@ -235,12 +286,38 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
     }else{
         cell.separatorInset = UIEdgeInsetsMake(0, 8, 0, 8);
     }
+    cell.button.contentHorizontalAlignment = self.contentHorizontalAlignment;
+    cell.delegate = self;
     return cell;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 44;
+    return self.contentHeight;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return self.contentHeight;
+}
+
+#pragma mark - CZArrowMenuCellDelegate
+- (void)arrowMenuCell:(UIView *)cell didSelectedItem:(CZArrowMenuItem *)item
+{
+    NSInteger idx = [self.items indexOfObject:item];
+    if ([self.delegate respondsToSelector:@selector(arrowMenu:didSelectedItem:atIndex:)]) {
+        [self.delegate arrowMenu:self didSelectedItem:item atIndex:idx];
+    }
+    if (item.handler) {
+        item.handler(item, idx);
+    }
+    if (self.direction == CZArrowMenuDirection_Horizontal){
+        ((CZArrowMenuCollectionViewCell *)cell).item = item;
+    }
+    if (self.direction == CZArrowMenuDirection_Vertical){
+        ((CZArrowMenuTableViewCell *)cell).item = item;
+    }
+    if (self.autoDismissWhenItemSelected) [self dismiss];
 }
 
 #pragma mark - Helper
@@ -264,15 +341,16 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
     
     [self confirmContentRect];
     
-    [UIView animateWithDuration:.3f animations:^{
+    CGAffineTransform transform_s = CGAffineTransformMakeScale(.1f, .1f);
+    CGAffineTransform transform_t = self.effectViewTransform;
+    self.effectView.transform = CGAffineTransformConcat(transform_s, transform_t);
+    self.effectView.alpha = 0;
+    [UIView animateWithDuration:.13f delay:0 usingSpringWithDamping:.8f initialSpringVelocity:3 options:UIViewAnimationOptionCurveEaseOut animations:^{
+        weakSelf.effectView.alpha = 1;
         weakSelf.backgroundColor = t_color;
-    }];
+        weakSelf.effectView.transform = CGAffineTransformIdentity;
+    } completion:nil];
 }
-
-typedef struct EffectViewRectInfo{
-    CZArrowCenterPosition position;
-    CGSize size;
-} EffectViewRectInfo;
 
 /**
  布置 effectView 的 position 以及 size
@@ -282,23 +360,26 @@ typedef struct EffectViewRectInfo{
     __weak __typeof (self) weakSelf = self;
     
     // 先设置当前 mainContentView 的 autoLayout
-    [[self mainContentView] mas_makeConstraints:^(MASConstraintMaker *make) {
+    [[self mainContentView] mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.edges.mas_equalTo(weakSelf.contentEdges);
     }];
     
     // 先给 effectView 设置 rect, 以便计算 tableview 或 collectionView 的 contentsize, 以下mas_makeConstraints中设置的都是临时的值
-    [self.effectView mas_makeConstraints:^(MASConstraintMaker *make) {
+    [self.effectView mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.centerY.mas_equalTo(0);
         make.centerX.mas_equalTo(0);
         make.width.mas_equalTo(44);
-        make.height.mas_equalTo(k_collectionViewHeight + k_arrowHeight);
+        make.height.mas_equalTo(self.contentHeight + k_arrowHeight);
     }];
+    
     [self.effectView layoutIfNeeded];
     
     // 计算出 effectView 的定位 以及 size
     EffectViewRectInfo effectViewRectInfo = [self calculateEffectViewRectInfo];
     
-    [self.effectView mas_updateConstraints:^(MASConstraintMaker *make) {
+    self.effectViewRectInfo = effectViewRectInfo;
+    
+    [self.effectView mas_remakeConstraints:^(MASConstraintMaker *make) {
         make.width.mas_equalTo(effectViewRectInfo.size.width);
         make.height.mas_equalTo(effectViewRectInfo.size.height);
         make.centerX.mas_offset(effectViewRectInfo.position.center.x - effectViewRectInfo.position.offset.left - effectViewRectInfo.position.offset.right);
@@ -315,7 +396,7 @@ typedef struct EffectViewRectInfo{
  遵循以下原则:
  1. 宽 不能超出 屏幕宽 - (self.edgeInsetsFromWindow.left + self.edgeInsetsFromWindow.right) 这个量
  2. 高 不能超出 屏幕高 - (self.edgeInsetsFromWindow.top + self.edgeInsetsFromWindow.bottom) 这个量
- 3. 如果 self.direction == CZArrowMenuDirection_Horizontal, mainContentView 是 collectionView 时, 高度限制为 k_collectionViewHeight + k_arrowHeight
+ 3. 如果 self.direction == CZArrowMenuDirection_Horizontal, mainContentView 是 collectionView 时, 高度限制为 k_defaultWH + k_arrowHeight
  
  计算(决定) effectView 的定位
  通过 target(被指向的目标) 以及 pointingPosition(指向的位置), 计算(决定) contentView 的布局位置
@@ -334,18 +415,18 @@ typedef struct EffectViewRectInfo{
     CGSize contentSize = [self mainContentView].contentSize;
     CGFloat w = contentSize.width;
     CGFloat h = contentSize.height;
+    // 如果 mainContentView 是 collectionView, effectView 的高度为 k_defaultWH + k_arrowHeight
+    if (self.direction == CZArrowMenuDirection_Horizontal) {
+        h = self.contentHeight + k_arrowHeight;
+    }
+    if (self.direction == CZArrowMenuDirection_Vertical) {
+        w = 128;
+    }
     if (w > k_appKeyWindow.frame.size.width) {
         w = k_appKeyWindow.frame.size.width - (self.edgeInsetsFromWindow.left + self.edgeInsetsFromWindow.right);
     }
     if (h > k_appKeyWindow.frame.size.height) {
         h = k_appKeyWindow.frame.size.height - (self.edgeInsetsFromWindow.top + self.edgeInsetsFromWindow.bottom);
-    }
-    // 如果 mainContentView 是 collectionView, effectView 的高度为 k_collectionViewHeight + k_arrowHeight
-    if (self.direction == CZArrowMenuDirection_Horizontal) {
-        h = k_collectionViewHeight + k_arrowHeight;
-    }
-    if (self.direction == CZArrowMenuDirection_Vertical) {
-        w = 128;
     }
     
     effectView_size = CGSizeMake(w, h);
@@ -387,7 +468,6 @@ typedef struct EffectViewRectInfo{
     EffectViewRectInfo rectInfo = {t_p, t_s};
     return rectInfo;
 }
-
 
 /**
  判断 effectView 是否超出屏幕显示, 分为两种情况, 1.因为定位问题而超出屏幕. 2.因为宽高超出屏幕
@@ -640,6 +720,32 @@ typedef struct EffectViewRectInfo{
         return self.collectionView;
     }
     return nil;
+}
+
+- (void)dismiss
+{
+    __weak __typeof (self) weakSelf = self;
+    CGAffineTransform transform_s = CGAffineTransformMakeScale(.1f, .1f);
+    CGAffineTransform transform_t = self.effectViewTransform;
+    [UIView animateWithDuration:.13f animations:^{
+        weakSelf.effectView.transform = CGAffineTransformConcat(transform_s, transform_t);
+        weakSelf.effectView.alpha = 0;
+        weakSelf.backgroundColor = [UIColor clearColor];
+    } completion:^(BOOL finished) {
+        [weakSelf removeFromSuperview];
+    }];
+}
+
+#pragma mark - Notification
+- (void)deviceOrientationDidChangeNotification:(NSNotification *)sender
+{
+    [self confirmContentRect];
+}
+
+#pragma mark - dealloc
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
 }
 
 @end

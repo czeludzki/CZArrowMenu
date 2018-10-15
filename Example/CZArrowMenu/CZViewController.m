@@ -9,7 +9,7 @@
 #import "CZViewController.h"
 #import <CZArrowMenu/CZArrowMenu.h>
 
-@interface CZViewController ()
+@interface CZViewController () <CZArrowMenuDelegate>
 @property (weak, nonatomic) IBOutlet UIButton *btn_left_top;
 @property (weak, nonatomic) IBOutlet UIButton *btn_right_top;
 @property (weak, nonatomic) IBOutlet UIButton *btn_mid;
@@ -60,12 +60,24 @@
     CZArrowMenuItem *item8 = [[CZArrowMenuItem alloc] init];
     item8.img = [UIImage imageNamed:@"front_btn_h3"];
     
-    CZArrowMenuItem *item9 = [[CZArrowMenuItem alloc] init];
-    item9.img = [UIImage imageNamed:@"front_btn_h3"];
+    CZArrowMenuItem *item9 = [[CZArrowMenuItem alloc] initWithTitle:@"" image:[UIImage imageNamed:@"front_btn_h3"] handler:^(CZArrowMenuItem *item, NSInteger index) {
+        item.selected = !item.selected;
+    }];
     
-//    CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Vertical Items:@[item0, item1, item2, item3, item4, item5, item6, item7, item8, item9]];
-    CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Vertical Items:@[item0, item1, item2, item3]];
-    [m showWithArrowTarget:sender pointingPosition:CZArrowMenuPointingPosition_Left];
+    CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Vertical items:@[item0, item1, item2, item3, item4, item5, item6, item7, item8, item9]];
+//    CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Horizontal Items:@[item0, item1, item2, item3]];
+    m.selectedColor = [UIColor blueColor];
+    m.tintColor = [UIColor blackColor];
+    m.effectStyle = UIBlurEffectStyleDark;
+    m.font = [UIFont boldSystemFontOfSize:17];
+    m.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+    m.delegate = self;
+    [m showWithArrowTarget:sender pointingPosition:CZArrowMenuPointingPosition_Right];
+}
+
+- (void)arrowMenu:(CZArrowMenu *)menu didSelectedItem:(CZArrowMenuItem *)item atIndex:(NSInteger)index
+{
+    item.selected = !item.selected;
 }
 
 @end
