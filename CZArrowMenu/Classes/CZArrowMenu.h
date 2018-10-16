@@ -76,6 +76,14 @@ typedef NS_ENUM(NSUInteger, CZArrowMenuPointingPosition) {
 - (instancetype)initWithDirection:(CZArrowMenuDirection)direction items:(NSArray <CZArrowMenuItem *>*)items;
 - (void)showWithArrowTarget:(UIView *)arrowTarget pointingPosition:(CZArrowMenuPointingPosition)pointingPosition;
 - (void)dismiss;
+/**
+ 只是重新赋值 cell.item
+ */
+- (void)reloadItems;
+/**
+ 调用 tableView || collectionView reloadData
+ */
+- (void)reload;
 @end
 
 NS_ASSUME_NONNULL_END

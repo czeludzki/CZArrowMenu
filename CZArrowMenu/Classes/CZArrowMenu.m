@@ -311,18 +311,7 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
     if (item.handler) {
         item.handler(item, idx);
     }
-    if (self.direction == CZArrowMenuDirection_Horizontal){
-        NSArray <CZArrowMenuCollectionViewCell *>*visibleCells = [self.collectionView visibleCells];
-        [visibleCells enumerateObjectsUsingBlock:^(CZArrowMenuCollectionViewCell * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            obj.item = obj.item;
-        }];
-    }
-    if (self.direction == CZArrowMenuDirection_Vertical){
-        NSArray <CZArrowMenuTableViewCell *>*visibleCells = [self.tableView visibleCells];
-        [visibleCells enumerateObjectsUsingBlock:^(CZArrowMenuTableViewCell * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-            obj.item = obj.item;
-        }];
-    }
+    [self reloadItems];
     if (self.autoDismissWhenItemSelected) [self dismiss];
 }
 
@@ -740,6 +729,32 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
     } completion:^(BOOL finished) {
         [weakSelf removeFromSuperview];
     }];
+}
+
+- (void)reloadItems
+{
+    if (self.direction == CZArrowMenuDirection_Horizontal){
+        NSArray <CZArrowMenuCollectionViewCell *>*visibleCells = [self.collectionView visibleCells];
+        [visibleCells enumerateObjectsUsingBlock:^(CZArrowMenuCollectionViewCell * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            obj.item = obj.item;
+        }];
+    }
+    if (self.direction == CZArrowMenuDirection_Vertical){
+        NSArray <CZArrowMenuTableViewCell *>*visibleCells = [self.tableView visibleCells];
+        [visibleCells enumerateObjectsUsingBlock:^(CZArrowMenuTableViewCell * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            obj.item = obj.item;
+        }];
+    }
+}
+
+- (void)reload
+{
+    if (self.direction == CZArrowMenuDirection_Horizontal){
+        [self.collectionView reloadData];
+    }
+    if (self.direction == CZArrowMenuDirection_Vertical){
+        [self.tableView reloadData];
+    }
 }
 
 #pragma mark - Notification
