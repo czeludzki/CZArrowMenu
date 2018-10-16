@@ -64,12 +64,13 @@
         item.selected = !item.selected;
     }];
     
-    CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Vertical items:@[item0, item1, item2, item3, item4, item5, item6, item7, item8, item9]];
+    CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Horizontal items:@[item0, item1, item2, item3, item4, item5, item6, item7, item8, item9]];
 //    CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Horizontal Items:@[item0, item1, item2, item3]];
-    m.selectedColor = [UIColor blueColor];
-    m.tintColor = [UIColor blackColor];
+//    m.selectedColor = [UIColor blueColor];
+//    m.tintColor = [UIColor blackColor];
     m.effectStyle = UIBlurEffectStyleDark;
     m.font = [UIFont boldSystemFontOfSize:17];
+    m.autoDismissWhenItemSelected = NO;
     m.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
     m.delegate = self;
     [m showWithArrowTarget:sender pointingPosition:CZArrowMenuPointingPosition_Right];

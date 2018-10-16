@@ -312,10 +312,16 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
         item.handler(item, idx);
     }
     if (self.direction == CZArrowMenuDirection_Horizontal){
-        ((CZArrowMenuCollectionViewCell *)cell).item = item;
+        NSArray <CZArrowMenuCollectionViewCell *>*visibleCells = [self.collectionView visibleCells];
+        [visibleCells enumerateObjectsUsingBlock:^(CZArrowMenuCollectionViewCell * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            obj.item = obj.item;
+        }];
     }
     if (self.direction == CZArrowMenuDirection_Vertical){
-        ((CZArrowMenuTableViewCell *)cell).item = item;
+        NSArray <CZArrowMenuTableViewCell *>*visibleCells = [self.tableView visibleCells];
+        [visibleCells enumerateObjectsUsingBlock:^(CZArrowMenuTableViewCell * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            obj.item = obj.item;
+        }];
     }
     if (self.autoDismissWhenItemSelected) [self dismiss];
 }
