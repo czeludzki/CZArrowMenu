@@ -24,6 +24,9 @@
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
+    
+    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAdd target:self action:@selector(rightBarButtonItemOnClick:)];
+    self.navigationItem.rightBarButtonItem = rightItem;
 }
 
 - (IBAction)btnOnClick:(UIButton *)sender {
@@ -64,7 +67,7 @@
         item.selected = !item.selected;
     }];
     
-    CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Horizontal items:@[item0, item1, item2, item3, item4, item5, item6, item7, item8, item9]];
+    CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Vertical items:@[item0, item1, item2, item3, item4, item5, item6, item7, item8, item9]];
 //    CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Horizontal Items:@[item0, item1, item2, item3]];
 //    m.selectedColor = [UIColor blueColor];
 //    m.tintColor = [UIColor blackColor];
@@ -73,7 +76,13 @@
     m.autoDismissWhenItemSelected = NO;
     m.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
     m.delegate = self;
-    [m showWithArrowTarget:sender pointingPosition:CZArrowMenuPointingPosition_Right];
+    [m showWithArrowTarget:sender pointingPosition:CZArrowMenuPointingPosition_Bottom];
+}
+
+- (void)rightBarButtonItemOnClick:(UIBarButtonItem *)sender
+{
+     UIView *view = [self.navigationItem.rightBarButtonItem valueForKeyPath:@"view"];
+    [self btnOnClick:view];
 }
 
 - (void)arrowMenu:(CZArrowMenu *)menu didSelectedItem:(CZArrowMenuItem *)item atIndex:(NSInteger)index

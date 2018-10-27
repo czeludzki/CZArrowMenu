@@ -211,10 +211,7 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
         }
         self.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:.3f];
         NSAssert((self.direction == CZArrowMenuDirection_Horizontal || self.direction == CZArrowMenuDirection_Vertical), @"direction 值有误");
-        
-        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapOnView:)];
-        [self addGestureRecognizer:tap];
-        
+                
         [self addSubview:self.effectView];
         
         if (direction == CZArrowMenuDirection_Horizontal) {
@@ -231,9 +228,9 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
 }
 
 #pragma mark - Action
-- (void)tapOnView:(UITapGestureRecognizer *)sender
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-    [self dismiss];
+    [self dismiss];    
 }
 
 #pragma mark - UICollectionViewDelegateFlowLayout, UICollectionViewDataSource,
@@ -665,7 +662,7 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
  */
 - (CGPoint)targetViewSideOfCenterInKeyWindow
 {
-    CGPoint t_p = [k_appKeyWindow convertPoint:self.targetView.center toView:k_appKeyWindow];
+    CGPoint t_p = [self.targetView convertPoint:CGPointMake(CGRectGetMidX(self.targetView.bounds), CGRectGetMidY(self.targetView.bounds)) toView:k_appKeyWindow];
     CGRect t_r = [self.targetView convertRect:self.targetView.bounds toView:k_appKeyWindow];
 
     if (CZArrowMenuPointingPosition_Top == self.pointingPosition) {
