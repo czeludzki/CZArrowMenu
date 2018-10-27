@@ -72,6 +72,7 @@
 //    m.selectedColor = [UIColor blueColor];
 //    m.tintColor = [UIColor blackColor];
     m.effectStyle = UIBlurEffectStyleDark;
+    m.contentWidth = 80;
     m.font = [UIFont boldSystemFontOfSize:17];
     m.autoDismissWhenItemSelected = NO;
     m.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;

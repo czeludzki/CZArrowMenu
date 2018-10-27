@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = 'CZArrowMenu'
-  s.version          = '1.0.4'
+  s.version          = '1.0.5'
   s.summary          = 'CZArrowMenu is a Menu with arrow'
 
 # This description is used to generate tags and improve search results.

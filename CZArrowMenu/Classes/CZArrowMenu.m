@@ -409,10 +409,18 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
     CGFloat h = contentSize.height;
     // 如果 mainContentView 是 collectionView, effectView 的高度为 k_defaultWH + k_arrowHeight
     if (self.direction == CZArrowMenuDirection_Horizontal) {
-        h = self.contentHeight + k_arrowHeight;
+        if (self.pointingPosition == CZArrowMenuPointingPosition_Bottom || self.pointingPosition == CZArrowMenuPointingPosition_Top) {
+            h = self.contentHeight + k_arrowHeight;
+        }else{
+            h = self.contentHeight;
+        }
     }
     if (self.direction == CZArrowMenuDirection_Vertical) {
-        w = 128;
+        if (self.pointingPosition == CZArrowMenuPointingPosition_Left || self.pointingPosition == CZArrowMenuPointingPosition_Right){
+            w = self.contentWidth + k_arrowHeight;
+        }else{
+            w = self.contentWidth;
+        }
     }
     if (w > k_appKeyWindow.frame.size.width) {
         w = k_appKeyWindow.frame.size.width - (self.edgeInsetsFromWindow.left + self.edgeInsetsFromWindow.right);
