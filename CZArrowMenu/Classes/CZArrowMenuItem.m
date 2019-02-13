@@ -45,6 +45,9 @@
 
 - (void)initSetup
 {
+    self.titleEdgeInsets = UIEdgeInsetsZero;
+    self.imageEdgeInsets = UIEdgeInsetsZero;
+    self.contentEdgeInsets = UIEdgeInsetsZero;
     self.tintColor = [UIColor whiteColor];
     self.selectedColor = [UIColor colorWithRed:255/255 green:105/255 blue:110/255 alpha:1];
     self.selected = NO;

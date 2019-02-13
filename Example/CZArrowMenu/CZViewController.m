@@ -62,20 +62,25 @@
     
     CZArrowMenuItem *item8 = [[CZArrowMenuItem alloc] init];
     item8.img = [UIImage imageNamed:@"front_btn_h3"];
+    item8.title = @"h8";
     
-    CZArrowMenuItem *item9 = [[CZArrowMenuItem alloc] initWithTitle:@"" image:[UIImage imageNamed:@"front_btn_h3"] handler:^(CZArrowMenuItem *item, NSInteger index) {
+    CZArrowMenuItem *item9 = [[CZArrowMenuItem alloc] initWithTitle:@"h3" image:[UIImage imageNamed:@"front_btn_h3"] handler:^(CZArrowMenuItem *item, NSInteger index) {
         item.selected = !item.selected;
     }];
+    item9.titleEdgeInsets = UIEdgeInsetsMake(0, -32, 0, 32);
+    item9.imageEdgeInsets = UIEdgeInsetsMake(0, 32, 0, -32);
+    item9.contentEdgeInsets = UIEdgeInsetsMake(0, 24, 0, 24);
     
     CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Vertical items:@[item0, item1, item2, item3, item4, item5, item6, item7, item8, item9]];
-//    CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Horizontal Items:@[item0, item1, item2, item3]];
+//    CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Vertical items:@[item0, item1, item2, item3]];
+//    CZArrowMenu *m = [[CZArrowMenu alloc] initWithDirection:CZArrowMenuDirection_Horizontal items:@[item0, item1, item2, item3]];
 //    m.selectedColor = [UIColor blueColor];
 //    m.tintColor = [UIColor blackColor];
     m.effectStyle = UIBlurEffectStyleDark;
     m.contentWidth = 80;
     m.font = [UIFont boldSystemFontOfSize:17];
     m.autoDismissWhenItemSelected = NO;
-    m.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
+    m.contentHorizontalAlignment = UIControlContentHorizontalAlignmentCenter;
     m.delegate = self;
     [m showWithArrowTarget:sender pointingPosition:CZArrowMenuPointingPosition_Bottom];
 }

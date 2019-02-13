@@ -38,6 +38,9 @@
     self.button.titleLabel.font = _item.font;
     [self.button setTitle:_item.title forState:UIControlStateNormal];
     [self.button setImage:_item.img forState:UIControlStateNormal];
+    self.button.titleEdgeInsets = _item.titleEdgeInsets;
+    self.button.imageEdgeInsets = _item.imageEdgeInsets;
+    self.button.contentEdgeInsets = _item.contentEdgeInsets;
 }
 
 - (void)btnOnClick:(UIButton *)sender

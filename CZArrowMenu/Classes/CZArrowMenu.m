@@ -211,7 +211,7 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
         }
         self.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:.3f];
         NSAssert((self.direction == CZArrowMenuDirection_Horizontal || self.direction == CZArrowMenuDirection_Vertical), @"direction 值有误");
-                
+        
         [self addSubview:self.effectView];
         
         if (direction == CZArrowMenuDirection_Horizontal) {
@@ -230,7 +230,7 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
 #pragma mark - Action
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
 {
-    [self dismiss];    
+    [self dismiss];
 }
 
 #pragma mark - UICollectionViewDelegateFlowLayout, UICollectionViewDataSource,
@@ -416,6 +416,7 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
         }
     }
     if (self.direction == CZArrowMenuDirection_Vertical) {
+        if (self.tableView.separatorStyle != UITableViewCellSeparatorStyleNone) h += (self.items.count - 1);
         if (self.pointingPosition == CZArrowMenuPointingPosition_Left || self.pointingPosition == CZArrowMenuPointingPosition_Right){
             w = self.contentWidth + k_arrowHeight;
         }else{
@@ -490,7 +491,7 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
     if (CZArrowMenuPointingPosition_Right == self.pointingPosition) {
         effectViewOrigin = CGPointMake(targetViewCenter.x + (targetRectInWindow.size.width * .5f), targetViewCenter.y - effectViewSize.height * .5f);
     }
-
+    
     CGRect effectViewRect = {effectViewOrigin, effectViewSize};
     CGRect edgeRect = CGRectMake(self.edgeInsetsFromWindow.left, self.edgeInsetsFromWindow.top, k_appKeyWindow.bounds.size.width - self.edgeInsetsFromWindow.left - self.edgeInsetsFromWindow.right, k_appKeyWindow.bounds.size.height - self.edgeInsetsFromWindow.top - self.edgeInsetsFromWindow.bottom);
     
@@ -524,7 +525,7 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
     /*
      针对 bottom, top 这两种对 targetView 的指向情况, 仅仅调整 effectView.size.height
      针对 left, right 这两种对 targetView 的指向情况, 仅仅调整 effectView.size.width
-    */
+     */
     CGSize newSize = CGSizeZero;
     UIEdgeInsets sizeOffset = UIEdgeInsetsZero; // 因为调整了 size, 且 定位使用的是 autoLayout 的 center, 所以当 size 变化, 就会造成 定位出错, 需要这个属性记录偏移
     if (CZArrowMenuPointingPosition_Top == self.pointingPosition || CZArrowMenuPointingPosition_Bottom == self.pointingPosition) {
@@ -672,7 +673,7 @@ static NSString *CZArrowMenuCollectionViewCellID = @"CZArrowMenuCollectionViewCe
 {
     CGPoint t_p = [self.targetView convertPoint:CGPointMake(CGRectGetMidX(self.targetView.bounds), CGRectGetMidY(self.targetView.bounds)) toView:k_appKeyWindow];
     CGRect t_r = [self.targetView convertRect:self.targetView.bounds toView:k_appKeyWindow];
-
+    
     if (CZArrowMenuPointingPosition_Top == self.pointingPosition) {
         t_p.y = t_p.y - t_r.size.height * .5f;
     }

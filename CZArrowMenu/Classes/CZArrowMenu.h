@@ -35,7 +35,7 @@ typedef NS_ENUM(NSUInteger, CZArrowMenuPointingPosition) {
 @interface CZArrowMenu : UIView
 @property (nonatomic, weak) id <CZArrowMenuDelegate>delegate;
 /**
- 当 系统版本 < ios11 时, 以 .top 为例, edgeInsetsFromWindow = edgeInsetsFromWindow.top + keyWindow.safeAreaInsets.top
+ 当 系统版本 > ios11 时, 以 .top 为例, edgeInsetsFromWindow = edgeInsetsFromWindow.top + keyWindow.safeAreaInsets.top
  */
 @property (assign, nonatomic) UIEdgeInsets edgeInsetsFromWindow;
 /**

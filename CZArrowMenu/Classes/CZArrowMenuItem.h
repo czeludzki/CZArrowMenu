@@ -20,6 +20,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) UIColor *tintColor;
 @property (nonatomic, strong) UIColor *selectedColor;
 @property (nonatomic, assign) BOOL selected;
+@property (nonatomic, assign) UIEdgeInsets titleEdgeInsets;
+@property (nonatomic, assign) UIEdgeInsets imageEdgeInsets;
+@property (nonatomic, assign) UIEdgeInsets contentEdgeInsets;
 @property (nonatomic, copy, readonly) CZArrowMenuItemHandler handler;
 
 - (instancetype)initWithTitle:(NSString *)title image:(UIImage *)image handler:(CZArrowMenuItemHandler)handler;
