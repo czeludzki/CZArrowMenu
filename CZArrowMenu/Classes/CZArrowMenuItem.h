@@ -8,10 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
-@class CZArrowMenuItem;
-typedef void(^CZArrowMenuItemHandler)(CZArrowMenuItem *item, NSInteger index);
-
 NS_ASSUME_NONNULL_BEGIN
+
+@class CZArrowMenuItem;
+
+typedef void(^CZArrowMenuItemHandler)(CZArrowMenuItem *item, NSInteger index);
 
 @interface CZArrowMenuItem : NSObject
 @property (nonatomic, copy) NSString *title;
@@ -25,8 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) UIEdgeInsets contentEdgeInsets;
 @property (nonatomic, copy, readonly) CZArrowMenuItemHandler handler;
 
-- (instancetype)initWithTitle:(NSString *)title image:(UIImage *)image handler:(CZArrowMenuItemHandler)handler;
-- (instancetype)initWithTitle:(NSString *)title image:(UIImage *)image;
+- (instancetype)initWithTitle:(NSString * _Nullable)title image:(UIImage * _Nullable)image handler:(CZArrowMenuItemHandler)handler;
+- (instancetype)initWithTitle:(NSString * _Nullable)title image:(UIImage * _Nullable)image;
 
 @end
 
