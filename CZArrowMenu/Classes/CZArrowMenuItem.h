@@ -15,8 +15,8 @@ NS_ASSUME_NONNULL_BEGIN
 typedef void(^CZArrowMenuItemHandler)(CZArrowMenuItem *item, NSInteger index);
 
 @interface CZArrowMenuItem : NSObject
-@property (nonatomic, copy) NSString *title;
-@property (nonatomic, strong) UIImage *img;
+@property (nonatomic, copy) NSString * _Nullable title;
+@property (nonatomic, strong) UIImage * _Nullable img;
 @property (nonatomic, strong) UIFont *font;
 @property (nonatomic, strong) UIColor *tintColor;
 @property (nonatomic, strong) UIColor *selectedColor;
